@@ -1,4 +1,4 @@
 pyoxy
 =====
 
-PYthon Object proXY
+Python object proxy
