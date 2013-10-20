@@ -91,3 +91,14 @@ class ObjectProxy(object):
             if isinstance(other, ObjectProxy):
                 other = other.__target__
             return cmp(self.__target__, other)
+
+    def __hash__(self):
+        return hash(self.__target__)
+
+    if PY3:  # pragma: no cover
+        def __bool__(self):
+            return bool(self.__target__)
+
+    else:  # pragma: no cover
+        def __nonzero__(self):
+            return bool(self.__target__)

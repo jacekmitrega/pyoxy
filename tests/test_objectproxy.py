@@ -111,3 +111,10 @@ class ObjectProxyTest(unittest.TestCase):
             self.assertEqual(1, cmp(p12, p11))
             self.assertEqual(-1, cmp(p11, 12))
             self.assertEqual(-1, cmp(p11, p12))
+
+    def test_hash(self):
+        self.assertEqual(hash(12), hash(ObjectProxy(12)))
+
+    def test_bool(self):
+        self.assertFalse(ObjectProxy(False))
+        self.assertTrue(ObjectProxy(True))
