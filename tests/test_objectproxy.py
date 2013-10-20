@@ -21,6 +21,13 @@ import unittest
 from pyoxy import *
 
 
+try:  # pragma: no cover
+    unicode
+    PY3 = False
+except NameError:  # pragma: no cover
+    PY3 = True
+
+
 class Object(object):
     pass
 
@@ -66,3 +73,18 @@ class ObjectProxyTest(unittest.TestCase):
             p.__target__
         with self.assertRaises(AttributeError):
             self.assertEqual(None, p.id)
+
+    def test_str_repr(self):
+        p = ObjectProxy(12)
+        self.assertEqual(repr(12), repr(p))
+        self.assertEqual(str(12), str(p))
+        if PY3:  # pragma: no cover
+            with self.assertRaises(AttributeError):
+                p.__unicode__
+            self.assertEqual(bytes(12), bytes(p))
+        else:  # pragma: no cover
+            with self.assertRaises(AttributeError):
+                p.__bytes__
+            self.assertEqual(unicode(12), unicode(p))
+        self.assertEqual(format(12), format(p))
+        self.assertEqual(format(12, '+'), format(p, '+'))

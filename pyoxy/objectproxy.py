@@ -17,6 +17,13 @@
 from __future__ import unicode_literals
 
 
+try:  # pragma: no cover
+    unicode
+    PY3 = False
+except NameError:  # pragma: no cover
+    PY3 = True
+
+
 _unspecified = object()
 
 
@@ -43,3 +50,20 @@ class ObjectProxy(object):
             object.__delattr__(self, attr)
         else:
             delattr(self.__target__, attr)
+
+    def __repr__(self):
+        return repr(self.__target__)
+
+    def __str__(self):
+        return str(self.__target__)
+
+    if PY3:  # pragma: no cover
+        def __bytes__(self):
+            return bytes(self.__target__)
+
+    else:  # pragma: no cover
+        def __unicode__(self):
+            return unicode(self.__target__)
+
+    def __format__(self, format_spec):
+        return format(self.__target__, format_spec)
