@@ -67,3 +67,27 @@ class ObjectProxy(object):
 
     def __format__(self, format_spec):
         return format(self.__target__, format_spec)
+
+    def __lt__(self, other):
+        return self.__target__ < other
+
+    def __le__(self, other):
+        return self.__target__ <= other
+
+    def __eq__(self, other):
+        return self.__target__ == other
+
+    def __ne__(self, other):
+        return self.__target__ != other
+
+    def __gt__(self, other):
+        return self.__target__ > other
+
+    def __ge__(self, other):
+        return self.__target__ >= other
+
+    if not PY3:  # pragma: no cover
+        def __cmp__(self, other):
+            if isinstance(other, ObjectProxy):
+                other = other.__target__
+            return cmp(self.__target__, other)
