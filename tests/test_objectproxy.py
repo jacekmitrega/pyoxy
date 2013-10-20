@@ -81,6 +81,30 @@ class ObjectProxyTest(unittest.TestCase):
         self.assertTrue(set(dir(o)).issubset(set(dir_p)))
         self.assertIn('__target__', dir_p)
 
+    def test_descriptor(self):
+        class TestDescriptor(object):
+            def __get__(self, instance, owner):
+                return instance._d
+
+            def __set__(self, instance, value):
+                instance._d = value
+
+            def __delete__(self, instance):
+                del instance._d
+
+        class TestClass(object):
+            d = ObjectProxy(TestDescriptor())
+
+        o = TestClass()
+        o.d = 1
+        self.assertEqual(1, o.d)
+        self.assertEqual(1, o._d)
+        del o.d
+        with self.assertRaises(AttributeError):
+            o.d
+        with self.assertRaises(AttributeError):
+            o._d
+
     def test_str_repr(self):
         p = ObjectProxy(12)
         self.assertEqual(repr(12), repr(p))

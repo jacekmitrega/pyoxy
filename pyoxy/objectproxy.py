@@ -54,6 +54,15 @@ class ObjectProxy(object):
     def __dir__(self):
         return dir(self.__target__) + list((ObjectProxy.__slots__))
 
+    def __get__(self, instance, owner):
+        return self.__target__.__get__(instance, owner)
+
+    def __set__(self, instance, value):
+        return self.__target__.__set__(instance, value)
+
+    def __delete__(self, instance):
+        return self.__target__.__delete__(instance)
+
     def __repr__(self):
         return repr(self.__target__)
 
