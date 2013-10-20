@@ -51,6 +51,9 @@ class ObjectProxy(object):
         else:
             delattr(self.__target__, attr)
 
+    def __dir__(self):
+        return dir(self.__target__) + list((ObjectProxy.__slots__))
+
     def __repr__(self):
         return repr(self.__target__)
 

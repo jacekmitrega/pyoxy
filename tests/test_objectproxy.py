@@ -74,6 +74,13 @@ class ObjectProxyTest(unittest.TestCase):
         with self.assertRaises(AttributeError):
             self.assertEqual(None, p.id)
 
+    def test_dir(self):
+        o = Object()
+        o.attr = 1
+        dir_p = dir(ObjectProxy(o))
+        self.assertTrue(set(dir(o)).issubset(set(dir_p)))
+        self.assertIn('__target__', dir_p)
+
     def test_str_repr(self):
         p = ObjectProxy(12)
         self.assertEqual(repr(12), repr(p))
