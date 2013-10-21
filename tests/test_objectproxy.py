@@ -18,7 +18,7 @@ from __future__ import unicode_literals
 
 import unittest
 
-from pyoxy import *
+from pyoxy import ObjectProxy as OP
 
 
 try:  # pragma: no cover
@@ -37,7 +37,7 @@ class ObjectProxyTest(unittest.TestCase):
     def test_attr(self):
         o = Object()
         o.attr = 1
-        p = ObjectProxy(o)
+        p = OP(o)
         self.assertEqual(1, p.attr)
         o.attr = 2
         self.assertEqual(2, p.attr)
@@ -62,7 +62,7 @@ class ObjectProxyTest(unittest.TestCase):
     def test_attr_target(self):
         o = Object()
         o.id = id(o)
-        p = ObjectProxy()
+        p = OP()
         with self.assertRaises(AttributeError):
             p.__target__
         p.__target__ = o
@@ -77,7 +77,7 @@ class ObjectProxyTest(unittest.TestCase):
     def test_dir(self):
         o = Object()
         o.attr = 1
-        dir_p = dir(ObjectProxy(o))
+        dir_p = dir(OP(o))
         self.assertTrue(set(dir(o)).issubset(set(dir_p)))
         self.assertIn('__target__', dir_p)
 
@@ -93,7 +93,7 @@ class ObjectProxyTest(unittest.TestCase):
                 del instance._d
 
         class TestClass(object):
-            d = ObjectProxy(TestDescriptor())
+            d = OP(TestDescriptor())
 
         o = TestClass()
         o.d = 1
@@ -106,7 +106,7 @@ class ObjectProxyTest(unittest.TestCase):
             o._d
 
     def test_str_repr(self):
-        p = ObjectProxy(12)
+        p = OP(12)
         self.assertEqual(repr(12), repr(p))
         self.assertEqual(str(12), str(p))
         if PY3:  # pragma: no cover
@@ -121,8 +121,8 @@ class ObjectProxyTest(unittest.TestCase):
         self.assertEqual(format(12, '+'), format(p, '+'))
 
     def test_comparison(self):
-        p11 = ObjectProxy(11)
-        p12 = ObjectProxy(12)
+        p11 = OP(11)
+        p12 = OP(12)
         self.assertTrue(p11 < p12)
         self.assertTrue(p11 <= p12)
         self.assertTrue(p11 == p11)
@@ -144,8 +144,8 @@ class ObjectProxyTest(unittest.TestCase):
             self.assertEqual(-1, cmp(p11, p12))
 
     def test_hash(self):
-        self.assertEqual(hash(12), hash(ObjectProxy(12)))
+        self.assertEqual(hash(12), hash(OP(12)))
 
     def test_bool(self):
-        self.assertFalse(ObjectProxy(False))
-        self.assertTrue(ObjectProxy(True))
+        self.assertFalse(OP(False))
+        self.assertTrue(OP(True))
