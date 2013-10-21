@@ -29,7 +29,7 @@ _unspecified = object()
 
 class ObjectProxy(object):
 
-    __slots__ = ('__target__',)
+    __slots__ = ('__target__', '__weakref__')
 
     def __init__(self, target=_unspecified):
         if not target is _unspecified:
@@ -114,3 +114,19 @@ class ObjectProxy(object):
     else:  # pragma: no cover
         def __nonzero__(self):
             return bool(self.__target__)
+
+    def __instancecheck__(self, instance):
+        """
+        Handle 'isinstance(object, ObjectProxy(classinfo))'.
+
+        """
+        return isinstance(instance, self.__target__)
+
+    def __subclasscheck__(self, subclass):
+        """
+        Handle 'issubclass(class, ObjectProxy(classinfo))'.
+
+        """
+        if isinstance(subclass, ObjectProxy):
+            subclass = subclass.__target__
+        return issubclass(subclass, self.__target__)
