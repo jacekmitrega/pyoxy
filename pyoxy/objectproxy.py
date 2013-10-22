@@ -27,6 +27,10 @@ except NameError:  # pragma: no cover
 _unspecified = object()
 
 
+def _proxy_fn(fn):
+    return lambda self: fn(self.__target__)
+
+
 class ObjectProxy(object):
 
     __slots__ = ('__target__', '__weakref__')
@@ -63,19 +67,12 @@ class ObjectProxy(object):
     def __delete__(self, instance):
         return self.__target__.__delete__(instance)
 
-    def __repr__(self):
-        return repr(self.__target__)
-
-    def __str__(self):
-        return str(self.__target__)
-
+    __repr__ = _proxy_fn(repr)
+    __str__ = _proxy_fn(str)
     if PY3:  # pragma: no cover
-        def __bytes__(self):
-            return bytes(self.__target__)
-
+        __bytes__ = _proxy_fn(bytes)
     else:  # pragma: no cover
-        def __unicode__(self):
-            return unicode(self.__target__)
+        __unicode__ = _proxy_fn(unicode)
 
     def __format__(self, format_spec):
         return format(self.__target__, format_spec)
@@ -104,16 +101,12 @@ class ObjectProxy(object):
                 other = other.__target__
             return cmp(self.__target__, other)
 
-    def __hash__(self):
-        return hash(self.__target__)
+    __hash__ = _proxy_fn(hash)
 
-    if PY3:  # pragma: no cover
-        def __bool__(self):
-            return bool(self.__target__)
-
-    else:  # pragma: no cover
-        def __nonzero__(self):
-            return bool(self.__target__)
+    __bool__ = _proxy_fn(bool)
+    if not PY3:  # pragma: no cover
+        __nonzero__ = __bool__
+        del __bool__
 
     def __instancecheck__(self, instance):
         """
