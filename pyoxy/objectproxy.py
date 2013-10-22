@@ -126,3 +126,24 @@ class ObjectProxy(object):
 
     def __call__(self, *args, **kwargs):
         return self.__target__(*args, **kwargs)
+
+    __len__ = _proxy_fn(len)
+
+    def __getitem__(self, key):
+        return self.__target__[key]
+
+    def __setitem__(self, key, value):
+        self.__target__[key] = value
+
+    def __delitem__(self, key):
+        del self.__target__[key]
+
+    __iter__ = _proxy_fn(iter)
+    __reversed__ = _proxy_fn(reversed)
+    __next__ = _proxy_fn(next)
+    if not PY3:  # pragma: no cover
+        next = __next__
+        del __next__
+
+    def __contains__(self, item):
+        return item in self.__target__

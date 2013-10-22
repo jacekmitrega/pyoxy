@@ -314,3 +314,51 @@ class ObjectProxyTest(unittest.TestCase):
         self.assertEqual((1, 2), OP(lambda *args, **kwargs: args)(1, 2))
         self.assertEqual({'p1': 1, 'p2': 2},
                          OP(lambda *args, **kwargs: kwargs)(p1=1, p2=2))
+
+    def test_len(self):
+        self.assertEqual(0, len(OP('')))
+        self.assertEqual(0, len(OP([])))
+        self.assertEqual(2, len(OP('12')))
+        self.assertEqual(2, len(OP([1, 2])))
+
+    def test_item(self):
+        o = {1: 1}
+        p = OP(o)
+        self.assertEqual(1, p[1])
+        self.assertIn(1, p)
+        o[1] = 0.5
+        self.assertEqual(0.5, o[1])
+        self.assertEqual(0.5, p[1])
+        p[2] = 2
+        self.assertEqual(2, o[2])
+        self.assertEqual(2, p[2])
+        self.assertIn(2, p)
+        del p[2]
+        self.assertNotIn(2, o)
+        self.assertNotIn(2, p)
+
+    def test_iteration(self):
+        p = OP([1, 2, 3])
+        i = OP(iter(p))
+        self.assertEqual(1, next(i))
+        self.assertEqual(2, next(i))
+        self.assertEqual(3, next(i))
+        with self.assertRaises(StopIteration):
+            next(i)
+        r = OP(reversed(p))
+        self.assertEqual(3, next(r))
+        self.assertEqual(2, next(r))
+        self.assertEqual(1, next(r))
+        with self.assertRaises(StopIteration):
+            next(r)
+
+    def test_slicing(self):
+        o = [0, 1, 2, 3]
+        p = OP(o)
+        p[1:3] = [4, 8]
+        self.assertEqual([0, 4, 8, 3], o)
+        self.assertEqual([0, 4, 8, 3], p)
+        self.assertEqual([4, 8], p[1:3])
+        del p[1:2]
+        self.assertEqual([0, 8, 3], o)
+        self.assertEqual([0, 8, 3], p)
