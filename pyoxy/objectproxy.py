@@ -130,3 +130,6 @@ class ObjectProxy(object):
         if isinstance(subclass, ObjectProxy):
             subclass = subclass.__target__
         return issubclass(subclass, self.__target__)
+
+    def __call__(self, *args, **kwargs):
+        return self.__target__(*args, **kwargs)

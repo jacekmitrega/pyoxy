@@ -305,3 +305,12 @@ class ObjectProxyTest(unittest.TestCase):
         # Proxying 2nd parameter makes issubclass() function call proxy aware
         # OP.__subclasscheck__() method.
         self.assertTrue(issubclass(OP(Object), OP(Object)))
+
+    def test_call(self):
+        self.assertEqual(0, OP(lambda: 0)())
+        self.assertEqual(1, OP(lambda p1: p1)(1))
+        self.assertEqual((1, 2), OP(lambda p1, p2: (p1, p2))(1, 2))
+        self.assertEqual((1, 2), OP(lambda p1, p2: (p1, p2))(p1=1, p2=2))
+        self.assertEqual((1, 2), OP(lambda *args, **kwargs: args)(1, 2))
+        self.assertEqual({'p1': 1, 'p2': 2},
+                         OP(lambda *args, **kwargs: kwargs)(p1=1, p2=2))
