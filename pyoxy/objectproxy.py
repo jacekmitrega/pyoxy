@@ -14,7 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import unicode_literals
+from __future__ import division, unicode_literals
+
+import operator
 
 
 try:  # pragma: no cover
@@ -29,6 +31,38 @@ _unspecified = object()
 
 def _proxy_fn(fn):
     return lambda self: fn(self.__target__)
+
+
+UNARY_OP_METHOD_TEMPLATE = """
+def __{method}__(self):
+    return {op}self.__target__
+"""
+BINARY_OP_METHOD_TEMPLATE = """
+def __{method}__(self, other):
+    return self.__target__ {op} other
+"""
+BINARY_R_OP_METHOD_TEMPLATE = """
+def __r{method}__(self, other):
+    return other {op} self.__target__
+"""
+BINARY_I_OP_METHOD_TEMPLATE = """
+def __i{method}__(self, other):
+    self.__target__ {op}= other
+    return self
+"""
+
+
+def _proxy_unary_op(method, op):
+    return UNARY_OP_METHOD_TEMPLATE.format(method=method, op=op)
+
+
+def _proxy_binary_op(method, op, r=False, i=False):
+    template = BINARY_OP_METHOD_TEMPLATE
+    if r:
+        template += BINARY_R_OP_METHOD_TEMPLATE
+    if i:
+        template += BINARY_I_OP_METHOD_TEMPLATE
+    return template.format(method=method, op=op)
 
 
 class ObjectProxy(object):
@@ -77,23 +111,12 @@ class ObjectProxy(object):
     def __format__(self, format_spec):
         return format(self.__target__, format_spec)
 
-    def __lt__(self, other):
-        return self.__target__ < other
-
-    def __le__(self, other):
-        return self.__target__ <= other
-
-    def __eq__(self, other):
-        return self.__target__ == other
-
-    def __ne__(self, other):
-        return self.__target__ != other
-
-    def __gt__(self, other):
-        return self.__target__ > other
-
-    def __ge__(self, other):
-        return self.__target__ >= other
+    exec(_proxy_binary_op('lt', '<'))
+    exec(_proxy_binary_op('le', '<='))
+    exec(_proxy_binary_op('eq', '=='))
+    exec(_proxy_binary_op('ne', '!='))
+    exec(_proxy_binary_op('gt', '>'))
+    exec(_proxy_binary_op('ge', '>='))
 
     if not PY3:  # pragma: no cover
         def __cmp__(self, other):
@@ -147,3 +170,62 @@ class ObjectProxy(object):
 
     def __contains__(self, item):
         return item in self.__target__
+
+    exec(_proxy_binary_op('add', '+', r=True, i=True))
+    exec(_proxy_binary_op('sub', '-', r=True, i=True))
+    exec(_proxy_binary_op('mul', '*', r=True, i=True))
+    exec(_proxy_binary_op('truediv', '/', r=True, i=True))
+    exec(_proxy_binary_op('floordiv', '//', r=True, i=True))
+    exec(_proxy_binary_op('mod', '%', r=True, i=True))
+    exec(_proxy_binary_op('lshift', '<<', r=True, i=True))
+    exec(_proxy_binary_op('rshift', '>>', r=True, i=True))
+    exec(_proxy_binary_op('and', '&', r=True, i=True))
+    exec(_proxy_binary_op('xor', '^', r=True, i=True))
+    exec(_proxy_binary_op('or', '|', r=True, i=True))
+
+    if not PY3:  # pragma: no cover
+        def __div__(self, other):
+            if isinstance(other, ObjectProxy):
+                other = other.__target__
+            return operator.div(self.__target__, other)
+
+    def __divmod__(self, other):
+        return divmod(self.__target__, other)
+
+    def __rdivmod__(self, other):
+        return divmod(other, self.__target__)
+
+    def __pow__(self, other, modulo=_unspecified):
+        return pow(self.__target__, other) if modulo is _unspecified \
+            else pow(self.__target__, other, modulo)
+
+    def __rpow__(self, other):
+        return pow(other, self.__target__)
+
+    def __ipow__(self, other):
+        self.__target__ **= other
+        return self
+
+    exec(_proxy_unary_op('neg', '-'))
+    __abs__ = _proxy_fn(abs)
+    exec(_proxy_unary_op('pos', '+'))
+    exec(_proxy_unary_op('invert', '~'))
+
+    __complex__ = _proxy_fn(complex)
+    __int__ = _proxy_fn(int)
+    __float__ = _proxy_fn(float)
+    if not PY3:  # pragma: no cover
+        __long__ = _proxy_fn(long)
+    else:  # pragma: no cover
+        def __round__(self, ndigits=_unspecified):
+            return round(self.__target__) if ndigits is _unspecified \
+                else round(self.__target__, ndigits)
+
+    __index__ = _proxy_fn(operator.index)
+
+    if not PY3:  # pragma: no cover
+        __oct__ = _proxy_fn(oct)
+        __hex__ = _proxy_fn(hex)
+
+        def __coerce__(self, other):
+            return coerce(self.__target__, other)

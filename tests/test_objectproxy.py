@@ -14,9 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import unicode_literals
+from __future__ import division, unicode_literals
 
 import abc
+import operator
 import unittest
 
 from pyoxy import ObjectProxy as OP
@@ -362,3 +363,173 @@ class ObjectProxyTest(unittest.TestCase):
         del p[1:2]
         self.assertEqual([0, 8, 3], o)
         self.assertEqual([0, 8, 3], p)
+
+    def check_result(self, expected_result, result,
+                     assert_result_is_proxy=False):
+        self.assertEqual(expected_result, result)
+        self.assertEqual(assert_result_is_proxy, isinstance(result, OP))
+
+    def test_add(self):
+        exp = 2 + 3
+        self.check_result(exp, OP(2) + OP(3))
+        self.check_result(exp, 2 + OP(3))
+        self.check_result(exp, OP(2) + 3)
+        self.check_result(exp, OP(OP(2)) + OP(OP(3)))
+
+    def test_concat(self):
+        exp = 'a' + 'bc'
+        self.check_result(exp, OP('a') + OP('bc'))
+        self.check_result(exp, 'a' + OP('bc'))
+        self.check_result(exp, OP('a') + 'bc')
+        self.check_result(exp, OP(OP('a')) + OP(OP('bc')))
+        self.check_result([1] + [2, 3], OP(OP([1])) + OP(OP([2, 3])))
+        self.check_result((1,) + (2, 3), OP(OP((1,))) + OP(OP((2, 3))))
+
+    def test_sub(self):
+        exp = 2 - 3
+        self.check_result(exp, OP(2) - OP(3))
+        self.check_result(exp, 2 - OP(3))
+        self.check_result(exp, OP(2) - 3)
+        self.check_result(exp, OP(OP(2)) - OP(OP(3)))
+
+    def test_mul(self):
+        exp = 2 * 3
+        self.check_result(exp, OP(2) * OP(3))
+        self.check_result(exp, 2 * OP(3))
+        self.check_result(exp, OP(2) * 3)
+        self.check_result(exp, OP(OP(2)) * OP(OP(3)))
+
+    def test_truediv(self):
+        exp = 2 / 3
+        self.check_result(exp, OP(2) / OP(3))
+        self.check_result(exp, 2 / OP(3))
+        self.check_result(exp, OP(2) / 3)
+        self.check_result(exp, OP(OP(2)) / OP(OP(3)))
+
+    def test_floordiv(self):
+        exp = 8 // 3
+        self.check_result(exp, OP(8) // OP(3))
+        self.check_result(exp, 8 // OP(3))
+        self.check_result(exp, OP(8) // 3)
+        self.check_result(exp, OP(OP(8)) // OP(OP(3)))
+
+    def test_mod(self):
+        exp = 8 % 3
+        self.check_result(exp, OP(8) % OP(3))
+        self.check_result(exp, 8 % OP(3))
+        self.check_result(exp, OP(8) % 3)
+        self.check_result(exp, OP(OP(8)) % OP(OP(3)))
+
+    def test_lshift(self):
+        exp = 8 << 3
+        self.check_result(exp, OP(8) << OP(3))
+        self.check_result(exp, 8 << OP(3))
+        self.check_result(exp, OP(8) << 3)
+        self.check_result(exp, OP(OP(8)) << OP(OP(3)))
+
+    def test_rshift(self):
+        exp = 8 >> 3
+        self.check_result(exp, OP(8) >> OP(3))
+        self.check_result(exp, 8 >> OP(3))
+        self.check_result(exp, OP(8) >> 3)
+        self.check_result(exp, OP(OP(8)) >> OP(OP(3)))
+
+    def test_and(self):
+        exp = 2 & 3
+        self.check_result(exp, OP(2) & OP(3))
+        self.check_result(exp, 2 & OP(3))
+        self.check_result(exp, OP(2) & 3)
+        self.check_result(exp, OP(OP(2)) & OP(OP(3)))
+
+    def test_xor(self):
+        exp = 2 ^ 3
+        self.check_result(exp, OP(2) ^ OP(3))
+        self.check_result(exp, 2 ^ OP(3))
+        self.check_result(exp, OP(2) ^ 3)
+        self.check_result(exp, OP(OP(2)) ^ OP(OP(3)))
+
+    def test_or(self):
+        exp = 2 | 3
+        self.check_result(exp, OP(2) | OP(3))
+        self.check_result(exp, 2 | OP(3))
+        self.check_result(exp, OP(2) | 3)
+        self.check_result(exp, OP(OP(2)) | OP(OP(3)))
+
+    def test_divmod_rdivmod(self):
+        exp = divmod(10, 3)
+        self.check_result(exp, divmod(OP(10), OP(3)))
+        self.check_result(exp, divmod(10, OP(3)))
+        self.check_result(exp, divmod(OP(10), 3))
+        self.check_result(exp, divmod(OP(OP(10)), OP(OP(3))))
+
+    def test_pow_rpow(self):
+        exp = pow(2, 3)
+        self.check_result(exp, pow(OP(2), OP(3)))
+        self.check_result(exp, pow(2, OP(3)))
+        self.check_result(exp, pow(OP(2), 3))
+        self.check_result(exp, pow(OP(OP(2)), OP(OP(3))))
+
+    def test_ipow(self):
+        exp = 2
+        exp **= 3
+        p = OP(2)
+        p **= OP(3)
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = OP(2)
+        p **= 3
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = 2
+        p **= OP(3)
+        self.check_result(exp, p, assert_result_is_proxy=False)
+
+    def test_neg(self):
+        self.check_result(-2, -OP(2))
+
+    def test_abs(self):
+        self.check_result(abs(-2), abs(-OP(2)))
+        self.check_result(abs(-2), abs(OP(-2)))
+        self.check_result(abs(2), abs(OP(2)))
+
+    def test_pos(self):
+        self.check_result(+2, +OP(2))
+
+    def test_invert(self):
+        self.check_result(~2, ~OP(2))
+
+    def test_complex(self):
+        self.check_result(complex('2+3j'), complex(OP('2+3j')))
+        self.check_result(complex(2), complex(OP(2)))
+        self.check_result(complex(2, 3), complex(OP(2), OP(3)))
+
+    def test_int(self):
+        self.check_result(int('10'), int(OP('10')))
+        self.check_result(int(10.5), int(OP(10.5)))
+
+    def test_float(self):
+        self.check_result(float('10.5'), float(OP('10.5')))
+        self.check_result(float(10), int(float(10)))
+
+    if not PY3:  # pragma: no cover
+        def test_long(self):
+            self.check_result(long('10'), long(OP('10')))
+            self.check_result(long(10.5), long(OP(10.5)))
+    else:  # pragma: no cover
+        def test_round(self):
+            self.check_result(round(2.675, 2), round(OP(2.675), OP(2)))
+            self.check_result(round(2.675, 2), round(2.675, OP(2)))
+            self.check_result(round(2.675, 2), round(OP(2.675), 2))
+
+    def test_index(self):
+        self.check_result(operator.index(2), operator.index(OP(2)))
+
+    def test_oct(self):
+        self.check_result(oct(10), oct(OP(10)))
+
+    def test_hex(self):
+        self.check_result(hex(10), hex(OP(10)))
+
+    if not PY3:  # pragma: no cover
+        def test_coerce(self):
+            self.check_result(coerce(2, 3.0), coerce(OP(2), OP(3.0)))
+            self.check_result(coerce(2, 3.0), coerce(2, OP(3.0)))
+            self.check_result(coerce(2, 3.0), coerce(OP(2), 3.0))
