@@ -376,14 +376,74 @@ class ObjectProxyTest(unittest.TestCase):
         self.check_result(exp, OP(2) + 3)
         self.check_result(exp, OP(OP(2)) + OP(OP(3)))
 
+    def test_iadd(self):
+        exp = 2
+        exp += 3
+        p = OP(2)
+        p += OP(3)
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = OP(2)
+        p += 3
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = 2
+        p += OP(3)
+        self.check_result(exp, p, assert_result_is_proxy=False)
+
     def test_concat(self):
         exp = 'a' + 'bc'
         self.check_result(exp, OP('a') + OP('bc'))
         self.check_result(exp, 'a' + OP('bc'))
         self.check_result(exp, OP('a') + 'bc')
         self.check_result(exp, OP(OP('a')) + OP(OP('bc')))
-        self.check_result([1] + [2, 3], OP(OP([1])) + OP(OP([2, 3])))
-        self.check_result((1,) + (2, 3), OP(OP((1,))) + OP(OP((2, 3))))
+
+        exp = [1] + [2, 3]
+        self.check_result(exp, OP([1]) + OP([2, 3]))
+        self.check_result(exp, [1] + OP([2, 3]))
+        self.check_result(exp, OP([1]) + [2, 3])
+        self.check_result(exp, OP(OP([1])) + OP(OP([2, 3])))
+
+        exp = (1,) + (2, 3)
+        self.check_result(exp, OP((1,)) + OP((2, 3)))
+        self.check_result(exp, (1,) + OP((2, 3)))
+        self.check_result(exp, OP((1,)) + (2, 3))
+        self.check_result(exp, OP(OP((1,))) + OP(OP((2, 3))))
+
+    def test_iconcat(self):
+        exp = 'a'
+        exp += 'bc'
+        p = OP('a')
+        p += OP('bc')
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = OP('a')
+        p += 'bc'
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = 'a'
+        p += OP('bc')
+        self.check_result(exp, p, assert_result_is_proxy=False)
+
+        exp = [1]
+        exp += [2, 3]
+        p = OP([1])
+        p += OP([2, 3])
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = OP([1])
+        p += [2, 3]
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = [1]
+        p += OP([2, 3])
+        self.check_result(exp, p, assert_result_is_proxy=False)
+
+        exp = (1,)
+        exp += (2, 3)
+        p = OP((1,))
+        p += OP((2, 3))
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = OP((1,))
+        p += (2, 3)
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = (1,)
+        p += OP((2, 3))
+        self.check_result(exp, p, assert_result_is_proxy=False)
 
     def test_sub(self):
         exp = 2 - 3
@@ -392,12 +452,38 @@ class ObjectProxyTest(unittest.TestCase):
         self.check_result(exp, OP(2) - 3)
         self.check_result(exp, OP(OP(2)) - OP(OP(3)))
 
+    def test_isub(self):
+        exp = 2
+        exp -= 3
+        p = OP(2)
+        p -= OP(3)
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = OP(2)
+        p -= 3
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = 2
+        p -= OP(3)
+        self.check_result(exp, p, assert_result_is_proxy=False)
+
     def test_mul(self):
         exp = 2 * 3
         self.check_result(exp, OP(2) * OP(3))
         self.check_result(exp, 2 * OP(3))
         self.check_result(exp, OP(2) * 3)
         self.check_result(exp, OP(OP(2)) * OP(OP(3)))
+
+    def test_imul(self):
+        exp = 2
+        exp *= 3
+        p = OP(2)
+        p *= OP(3)
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = OP(2)
+        p *= 3
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = 2
+        p *= OP(3)
+        self.check_result(exp, p, assert_result_is_proxy=False)
 
     def test_truediv(self):
         exp = 2 / 3
@@ -406,12 +492,38 @@ class ObjectProxyTest(unittest.TestCase):
         self.check_result(exp, OP(2) / 3)
         self.check_result(exp, OP(OP(2)) / OP(OP(3)))
 
+    def test_itruediv(self):
+        exp = 2
+        exp /= 3
+        p = OP(2)
+        p /= OP(3)
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = OP(2)
+        p /= 3
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = 2
+        p /= OP(3)
+        self.check_result(exp, p, assert_result_is_proxy=False)
+
     def test_floordiv(self):
         exp = 8 // 3
         self.check_result(exp, OP(8) // OP(3))
         self.check_result(exp, 8 // OP(3))
         self.check_result(exp, OP(8) // 3)
         self.check_result(exp, OP(OP(8)) // OP(OP(3)))
+
+    def test_ifloordiv(self):
+        exp = 2
+        exp //= 3
+        p = OP(2)
+        p //= OP(3)
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = OP(2)
+        p //= 3
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = 2
+        p //= OP(3)
+        self.check_result(exp, p, assert_result_is_proxy=False)
 
     def test_mod(self):
         exp = 8 % 3
@@ -420,12 +532,38 @@ class ObjectProxyTest(unittest.TestCase):
         self.check_result(exp, OP(8) % 3)
         self.check_result(exp, OP(OP(8)) % OP(OP(3)))
 
+    def test_imod(self):
+        exp = 2
+        exp %= 3
+        p = OP(2)
+        p %= OP(3)
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = OP(2)
+        p %= 3
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = 2
+        p %= OP(3)
+        self.check_result(exp, p, assert_result_is_proxy=False)
+
     def test_lshift(self):
         exp = 8 << 3
         self.check_result(exp, OP(8) << OP(3))
         self.check_result(exp, 8 << OP(3))
         self.check_result(exp, OP(8) << 3)
         self.check_result(exp, OP(OP(8)) << OP(OP(3)))
+
+    def test_ilshift(self):
+        exp = 2
+        exp <<= 3
+        p = OP(2)
+        p <<= OP(3)
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = OP(2)
+        p <<= 3
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = 2
+        p <<= OP(3)
+        self.check_result(exp, p, assert_result_is_proxy=False)
 
     def test_rshift(self):
         exp = 8 >> 3
@@ -434,12 +572,38 @@ class ObjectProxyTest(unittest.TestCase):
         self.check_result(exp, OP(8) >> 3)
         self.check_result(exp, OP(OP(8)) >> OP(OP(3)))
 
+    def test_irshift(self):
+        exp = 2
+        exp >>= 3
+        p = OP(2)
+        p >>= OP(3)
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = OP(2)
+        p >>= 3
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = 2
+        p >>= OP(3)
+        self.check_result(exp, p, assert_result_is_proxy=False)
+
     def test_and(self):
         exp = 2 & 3
         self.check_result(exp, OP(2) & OP(3))
         self.check_result(exp, 2 & OP(3))
         self.check_result(exp, OP(2) & 3)
         self.check_result(exp, OP(OP(2)) & OP(OP(3)))
+
+    def test_iand(self):
+        exp = 2
+        exp &= 3
+        p = OP(2)
+        p &= OP(3)
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = OP(2)
+        p &= 3
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = 2
+        p &= OP(3)
+        self.check_result(exp, p, assert_result_is_proxy=False)
 
     def test_xor(self):
         exp = 2 ^ 3
@@ -448,12 +612,38 @@ class ObjectProxyTest(unittest.TestCase):
         self.check_result(exp, OP(2) ^ 3)
         self.check_result(exp, OP(OP(2)) ^ OP(OP(3)))
 
+    def test_ixor(self):
+        exp = 2
+        exp ^= 3
+        p = OP(2)
+        p ^= OP(3)
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = OP(2)
+        p ^= 3
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = 2
+        p ^= OP(3)
+        self.check_result(exp, p, assert_result_is_proxy=False)
+
     def test_or(self):
         exp = 2 | 3
         self.check_result(exp, OP(2) | OP(3))
         self.check_result(exp, 2 | OP(3))
         self.check_result(exp, OP(2) | 3)
         self.check_result(exp, OP(OP(2)) | OP(OP(3)))
+
+    def test_ior(self):
+        exp = 2
+        exp |= 3
+        p = OP(2)
+        p |= OP(3)
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = OP(2)
+        p |= 3
+        self.check_result(exp, p, assert_result_is_proxy=True)
+        p = 2
+        p |= OP(3)
+        self.check_result(exp, p, assert_result_is_proxy=False)
 
     def test_divmod_rdivmod(self):
         exp = divmod(10, 3)
