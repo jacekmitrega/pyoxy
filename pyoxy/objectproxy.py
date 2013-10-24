@@ -120,7 +120,7 @@ class ObjectProxy(object):
 
     if not PY3:  # pragma: no cover
         def __cmp__(self, other):
-            if isinstance(other, ObjectProxy):
+            while isinstance(other, ObjectProxy):
                 other = other.__target__
             return cmp(self.__target__, other)
 
@@ -143,7 +143,7 @@ class ObjectProxy(object):
         Handle 'issubclass(class, ObjectProxy(classinfo))'.
 
         """
-        if isinstance(subclass, ObjectProxy):
+        while isinstance(subclass, ObjectProxy):
             subclass = subclass.__target__
         return issubclass(subclass, self.__target__)
 
@@ -185,7 +185,7 @@ class ObjectProxy(object):
 
     if not PY3:  # pragma: no cover
         def __div__(self, other):
-            if isinstance(other, ObjectProxy):
+            while isinstance(other, ObjectProxy):
                 other = other.__target__
             return operator.div(self.__target__, other)
 

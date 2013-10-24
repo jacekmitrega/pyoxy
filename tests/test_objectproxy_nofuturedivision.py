@@ -37,8 +37,9 @@ class ObjectProxyNoFutureDivisionTest(unittest.TestCase):
 
     def test_div(self):
         exp = 2 / 3
-        self.check_result(exp, OP(2) / OP(3))
         self.check_result(exp, OP(2) / 3)
+        self.check_result(exp, OP(2) / OP(3))
+        self.check_result(exp, OP(2) / OP(OP(3)))
         self.check_result(exp, OP(OP(2)) / OP(OP(3)))
         self.check_result(exp, OP(OP(OP(2))) / OP(OP(3)))
 
@@ -46,16 +47,11 @@ class ObjectProxyNoFutureDivisionTest(unittest.TestCase):
         # This test fails in Python 2, passes in Python 3.
         # There is no reverse operator magic method for old division
         # and naturally int's div implementation doesn't support the proxy.
+        # The workaround is to wrap the 1st operand in ObjectProxy,
+        # like in the example above in test_div.
         self.check_result(2 / 3, 2 / OP(3))
     if not PY3:  # pragma: no cover
         test_div_error = unittest.expectedFailure(test_div_error)
-
-    def test_div_error_proxy(self):
-        # This test fails in Python 2, passes in Python 3.
-        # Similar to the failing test above, just with both sides proxied.
-        self.check_result(2 / 3, OP(2) / OP(OP(3)))
-    if not PY3:  # pragma: no cover
-        test_div_error_proxy = unittest.expectedFailure(test_div_error_proxy)
 
     def test_floordiv(self):
         exp = 8 // 3
