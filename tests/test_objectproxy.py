@@ -25,9 +25,9 @@ from pyoxy import ObjectProxy as OP
 
 try:  # pragma: no cover
     unicode
-    PY3 = False
+    _PY3 = False
 except NameError:  # pragma: no cover
-    PY3 = True
+    _PY3 = True
 
 
 class Object(object):
@@ -111,7 +111,7 @@ class ObjectProxyTest(unittest.TestCase):
         p = OP(12)
         self.assertEqual(repr(12), repr(p))
         self.assertEqual(str(12), str(p))
-        if PY3:  # pragma: no cover
+        if _PY3:  # pragma: no cover
             with self.assertRaises(AttributeError):
                 p.__unicode__
             self.assertEqual(bytes(12), bytes(p))
@@ -137,7 +137,7 @@ class ObjectProxyTest(unittest.TestCase):
         self.assertFalse(p11 == p12)
         self.assertFalse(p12 < p11)
         self.assertFalse(p12 <= p11)
-        if not PY3:  # pragma: no cover
+        if not _PY3:  # pragma: no cover
             self.assertEqual(0, cmp(p11, 11))
             self.assertEqual(0, cmp(p11, p11))
             self.assertEqual(1, cmp(p12, 11))
@@ -281,7 +281,7 @@ class ObjectProxyTest(unittest.TestCase):
             with self.assertRaises(AttributeError):
                 issubclass(p, OP())
 
-            if mixin_meta == abc.ABCMeta and not PY3:  # pragma: no cover
+            if mixin_meta == abc.ABCMeta and not _PY3:  # pragma: no cover
                 # In Python 2.x, if class' metaclass is ABCMeta, the following
                 # works without 'test_issubclass_error_workaround()':
                 self.assertTrue(issubclass(p, SubObject))
@@ -725,7 +725,7 @@ class ObjectProxyTest(unittest.TestCase):
         self.check_result(float('10.5'), float(OP('10.5')))
         self.check_result(float(10), int(float(10)))
 
-    if not PY3:  # pragma: no cover
+    if not _PY3:  # pragma: no cover
         def test_long(self):
             self.check_result(long('10'), long(OP('10')))
             self.check_result(long(10.5), long(OP(10.5)))
@@ -744,7 +744,7 @@ class ObjectProxyTest(unittest.TestCase):
     def test_hex(self):
         self.check_result(hex(10), hex(OP(10)))
 
-    if not PY3:  # pragma: no cover
+    if not _PY3:  # pragma: no cover
         def test_coerce(self):
             self.check_result(coerce(2, 3.0), coerce(OP(2), OP(3.0)))
             self.check_result(coerce(2, 3.0), coerce(2, OP(3.0)))

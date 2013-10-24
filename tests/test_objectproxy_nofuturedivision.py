@@ -23,9 +23,9 @@ from pyoxy import ObjectProxy as OP
 
 try:  # pragma: no cover
     unicode
-    PY3 = False
+    _PY3 = False
 except NameError:  # pragma: no cover
-    PY3 = True
+    _PY3 = True
 
 
 class ObjectProxyNoFutureDivisionTest(unittest.TestCase):
@@ -50,7 +50,7 @@ class ObjectProxyNoFutureDivisionTest(unittest.TestCase):
         # The workaround is to wrap the 1st operand in ObjectProxy,
         # like in the example above in test_div.
         self.check_result(2 / 3, 2 / OP(3))
-    if not PY3:  # pragma: no cover
+    if not _PY3:  # pragma: no cover
         test_div_error = unittest.expectedFailure(test_div_error)
 
     def test_floordiv(self):

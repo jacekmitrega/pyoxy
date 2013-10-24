@@ -21,9 +21,9 @@ import operator
 
 try:  # pragma: no cover
     unicode
-    PY3 = False
+    _PY3 = False
 except NameError:  # pragma: no cover
-    PY3 = True
+    _PY3 = True
 
 
 _unspecified = object()
@@ -103,7 +103,7 @@ class ObjectProxy(object):
 
     __repr__ = _proxy_fn(repr)
     __str__ = _proxy_fn(str)
-    if PY3:  # pragma: no cover
+    if _PY3:  # pragma: no cover
         __bytes__ = _proxy_fn(bytes)
     else:  # pragma: no cover
         __unicode__ = _proxy_fn(unicode)
@@ -118,7 +118,7 @@ class ObjectProxy(object):
     exec(_proxy_binary_op('gt', '>'))
     exec(_proxy_binary_op('ge', '>='))
 
-    if not PY3:  # pragma: no cover
+    if not _PY3:  # pragma: no cover
         def __cmp__(self, other):
             while isinstance(other, ObjectProxy):
                 other = other.__target__
@@ -127,7 +127,7 @@ class ObjectProxy(object):
     __hash__ = _proxy_fn(hash)
 
     __bool__ = _proxy_fn(bool)
-    if not PY3:  # pragma: no cover
+    if not _PY3:  # pragma: no cover
         __nonzero__ = __bool__
         del __bool__
 
@@ -164,7 +164,7 @@ class ObjectProxy(object):
     __iter__ = _proxy_fn(iter)
     __reversed__ = _proxy_fn(reversed)
     __next__ = _proxy_fn(next)
-    if not PY3:  # pragma: no cover
+    if not _PY3:  # pragma: no cover
         next = __next__
         del __next__
 
@@ -183,7 +183,7 @@ class ObjectProxy(object):
     exec(_proxy_binary_op('xor', '^', r=True, i=True))
     exec(_proxy_binary_op('or', '|', r=True, i=True))
 
-    if not PY3:  # pragma: no cover
+    if not _PY3:  # pragma: no cover
         def __div__(self, other):
             while isinstance(other, ObjectProxy):
                 other = other.__target__
@@ -220,7 +220,7 @@ class ObjectProxy(object):
     __complex__ = _proxy_fn(complex)
     __int__ = _proxy_fn(int)
     __float__ = _proxy_fn(float)
-    if not PY3:  # pragma: no cover
+    if not _PY3:  # pragma: no cover
         __long__ = _proxy_fn(long)
     else:  # pragma: no cover
         def __round__(self, ndigits=_unspecified):
@@ -229,7 +229,7 @@ class ObjectProxy(object):
 
     __index__ = _proxy_fn(operator.index)
 
-    if not PY3:  # pragma: no cover
+    if not _PY3:  # pragma: no cover
         __oct__ = _proxy_fn(oct)
         __hex__ = _proxy_fn(hex)
 
