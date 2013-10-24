@@ -17,6 +17,7 @@
 from __future__ import division, unicode_literals
 
 import abc
+import contextlib
 import operator
 import unittest
 
@@ -749,3 +750,21 @@ class ObjectProxyTest(unittest.TestCase):
             self.check_result(coerce(2, 3.0), coerce(OP(2), OP(3.0)))
             self.check_result(coerce(2, 3.0), coerce(2, OP(3.0)))
             self.check_result(coerce(2, 3.0), coerce(OP(2), 3.0))
+
+    def test_with(self):
+        state = {}
+
+        @contextlib.contextmanager
+        def test_manager(param):
+            state['param'] = param
+            yield param
+            state['exit'] = True
+
+        with OP(test_manager('p')) as value:
+            state['in_with'] = value
+        self.assertEqual('p', state['param'])
+        self.assertEqual('p', state['in_with'])
+        self.assertIn('exit', state)
+
+        with OP(self.assertRaises(Exception)):
+            raise Exception()

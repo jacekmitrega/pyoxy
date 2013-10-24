@@ -235,3 +235,9 @@ class ObjectProxy(object):
 
         def __coerce__(self, other):
             return coerce(self.__target__, other)
+
+    def __enter__(self):
+        return self.__target__.__enter__()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        return self.__target__.__exit__(exc_type, exc_value, traceback)
