@@ -652,12 +652,38 @@ class ObjectProxyTest(unittest.TestCase):
         self.check_result(exp, divmod(OP(10), 3))
         self.check_result(exp, divmod(OP(OP(10)), OP(OP(3))))
 
-    def test_pow_rpow(self):
-        exp = pow(2, 3)
-        self.check_result(exp, pow(OP(2), OP(3)))
-        self.check_result(exp, pow(2, OP(3)))
-        self.check_result(exp, pow(OP(2), 3))
-        self.check_result(exp, pow(OP(OP(2)), OP(OP(3))))
+    def test_pow(self):
+        exp = 2 ** 3
+        self.check_result(exp, OP(2) ** OP(3))
+        self.check_result(exp, 2 ** OP(3))
+        self.check_result(exp, OP(2) ** 3)
+        self.check_result(exp, OP(OP(2)) ** OP(OP(3)))
+
+    def test_pow_ternary(self):
+        exp = pow(2, 3, 3)
+        self.check_result(exp, pow(OP(2), OP(3), OP(3)))
+        self.check_result(exp, pow(OP(2), OP(3), 3))
+        self.check_result(exp, pow(OP(2), 3, OP(3)))
+        self.check_result(exp, pow(OP(2), 3, 3))
+        self.check_result(exp, pow(OP(OP(2)), OP(OP(3)), OP(OP(3))))
+        self.check_result(exp, pow(OP(OP(2)), OP(3), 3))
+
+    # The following 3 tests fail, because ternary pow operator doesn't
+    # call __rpow__, but instead int's __pow__ which doesn't support the proxy:
+    # The workaround is to wrap the 1st operand in ObjectProxy,
+    # like in the example above in test_pow_ternary.
+
+    @unittest.expectedFailure
+    def test_pow_ternary_error_p1(self):
+        self.check_result(exp, pow(2, OP(3), 3))
+
+    @unittest.expectedFailure
+    def test_pow_ternary_error_p2(self):
+        self.check_result(exp, pow(2, 3, OP(3)))
+
+    @unittest.expectedFailure
+    def test_pow_ternary_error_p12(self):
+        self.check_result(exp, pow(2, OP(3), OP(3)))
 
     def test_ipow(self):
         exp = 2

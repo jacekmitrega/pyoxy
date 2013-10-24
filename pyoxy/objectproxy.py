@@ -196,8 +196,14 @@ class ObjectProxy(object):
         return divmod(other, self.__target__)
 
     def __pow__(self, other, modulo=_unspecified):
-        return pow(self.__target__, other) if modulo is _unspecified \
-            else pow(self.__target__, other, modulo)
+        if modulo is _unspecified:
+            return pow(self.__target__, other)
+        else:
+            while isinstance(other, ObjectProxy):
+                other = other.__target__
+            while isinstance(modulo, ObjectProxy):
+                modulo = modulo.__target__
+            return pow(self.__target__, other, modulo)
 
     def __rpow__(self, other):
         return pow(other, self.__target__)
